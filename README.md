@@ -48,6 +48,9 @@ python scripts/collab.py --lang zh route --needs vision,research --prefer vision
 
 All text files and CLI output use UTF-8 across Windows, macOS, and Linux.
 
+See [coordinator/README.zh-CN.md](coordinator/README.zh-CN.md) for the current
+bench-hosted Feishu coordinator MVP.
+
 To read or update GitHub Issues, provide credentials only through the process
 environment. Never commit them:
 

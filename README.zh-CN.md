@@ -76,3 +76,5 @@ python scripts/collab.py --lang zh status --repo finnyoun9/agent-collab-hub
 - 密钥只放环境变量或 GitHub/飞书 secret store。
 
 所有文本文件和 CLI 输出统一使用 UTF-8，保证 Windows、macOS 和 Linux 上的中英文内容一致。
+
+bench 上的飞书长连接协调器见 [coordinator/README.zh-CN.md](coordinator/README.zh-CN.md)。
