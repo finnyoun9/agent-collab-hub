@@ -1,5 +1,7 @@
 # Feishu bridge
 
+English | [简体中文](FEISHU.zh-CN.md)
+
 Feishu should be the front door and notification channel, while GitHub remains
 the source of truth.
 

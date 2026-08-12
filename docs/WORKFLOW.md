@@ -1,5 +1,7 @@
 # Workflow
 
+English | [简体中文](WORKFLOW.zh-CN.md)
+
 ## Control surfaces
 
 | Surface | Canonical content |

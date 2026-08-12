@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import io
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 
 
@@ -35,6 +37,14 @@ class RoutingTests(unittest.TestCase):
     def test_hardware_routes_only_to_capable_agent(self) -> None:
         matches = collab.route_agents(self.config, {"hardware"})
         self.assertEqual([agent["id"] for agent in matches], ["bench-codex"])
+
+    def test_chinese_route_output(self) -> None:
+        args = argparse.Namespace(needs="vision,research", prefer="vision", lang="zh")
+        output = io.StringIO()
+        with redirect_stdout(output):
+            result = collab.command_route(args)
+        self.assertEqual(result, 0)
+        self.assertIn("适合截图、数据手册", output.getvalue())
 
 
 class MessageTests(unittest.TestCase):

@@ -1,63 +1,63 @@
-name: Agent task
-description: Create a routable task for one agent
-title: "[Task]: "
+name: Agent task / Agent 任务
+description: Create a routable task / 创建可路由的 Agent 任务
+title: "[Task/任务]: "
 labels:
   - state:triage
 body:
   - type: textarea
     id: goal
     attributes:
-      label: Goal
-      description: State one verifiable outcome.
+      label: Goal / 目标
+      description: State one verifiable outcome. / 写明一个可验证的结果。
     validations:
       required: true
   - type: input
     id: target
     attributes:
-      label: Target repository
+      label: Target repository / 目标仓库
       placeholder: owner/repository
     validations:
       required: true
   - type: dropdown
     id: capabilities
     attributes:
-      label: Primary capability
+      label: Primary capability / 主要能力
       options:
-        - code + local workspace
-        - vision / image analysis
-        - research / architecture
-        - hardware verification
-        - independent review
+        - code + local workspace / 编码 + 本地工作区
+        - vision / image analysis / 视觉或图片分析
+        - research / architecture / 调研或架构
+        - hardware verification / 硬件验证
+        - independent review / 独立审查
     validations:
       required: true
   - type: textarea
     id: scope
     attributes:
-      label: Allowed scope
-      description: Files, modules, devices, and external systems the agent may touch.
+      label: Allowed scope / 允许范围
+      description: Files, modules, devices, and external systems the agent may touch. / Agent 可以接触的文件、模块、设备和外部系统。
     validations:
       required: true
   - type: textarea
     id: forbidden
     attributes:
-      label: Do not touch
-      description: Explicit exclusions and risky operations.
+      label: Do not touch / 禁止范围
+      description: Explicit exclusions and risky operations. / 明确排除项和高风险操作。
   - type: textarea
     id: acceptance
     attributes:
-      label: Acceptance criteria
-      description: Tests, measurements, screenshots, or other evidence required.
+      label: Acceptance criteria / 验收标准
+      description: Tests, measurements, screenshots, or other evidence required. / 所需测试、测量、截图或其他证据。
     validations:
       required: true
   - type: textarea
     id: learning
     attributes:
-      label: Learning goal
-      description: Optional new technique to learn and the artifact that proves it landed.
+      label: Learning goal / 学习目标
+      description: Optional new technique to learn and the artifact that proves it landed. / 可选：要学习的新技术和证明已经落地的产物。
   - type: dropdown
     id: risk
     attributes:
-      label: Risk
+      label: Risk / 风险
       options:
         - low
         - medium

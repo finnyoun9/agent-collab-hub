@@ -35,6 +35,18 @@ class CardTests(unittest.TestCase):
         self.assertIn("#3 Run hardware test", markdown)
         self.assertIn("HANDOFF Tests passed", markdown)
 
+    def test_chinese_card_labels(self) -> None:
+        card = notify.build_card(
+            {"action": "opened", "issue": {"number": 8, "title": "验证 DMA"}},
+            "issues",
+            "zh",
+        )
+        markdown = card["card"]["elements"][0]["content"]
+        button = card["card"]["elements"][1]["actions"][0]
+        self.assertIn("**事件:**", markdown)
+        self.assertIn("**任务:** #8 验证 DMA", markdown)
+        self.assertEqual(button["text"]["content"], "打开 GitHub")
+
 
 if __name__ == "__main__":
     unittest.main()

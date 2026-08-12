@@ -17,8 +17,12 @@ this file in the same commit as the change that follows from the decision.
   and auditable.
 - **Impact**: every task, claim, handoff, and decision must land in GitHub.
 
-## D-002 | YYYY-MM-DD | Title
+## D-002 | 2026-08-13 | English and Chinese are first-class interfaces
 
-- **Decision**: …
-- **Reason**: …
-- **Impact**: …
+- **Decision**: user-facing documentation, task forms, CLI output, and Feishu
+  notifications support English and Simplified Chinese. Machine-readable
+  protocol keywords such as `CLAIM`, `HANDOFF`, and `VERIFIED` remain English.
+- **Reason**: humans work mainly in Chinese while heterogeneous agents and
+  automation need one stable, language-neutral parsing contract.
+- **Impact**: new user-facing features must update both languages; duplicated
+  translations link back to one canonical state or protocol definition.

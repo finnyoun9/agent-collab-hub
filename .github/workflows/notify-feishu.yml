@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+      COLLAB_LANG: ${{ vars.COLLAB_LANG }}
     steps:
       - uses: actions/checkout@v4
       - name: Send event card

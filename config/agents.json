@@ -7,7 +7,8 @@
       "capabilities": ["code", "local", "vision", "research", "review", "hardware", "integration"],
       "cost": "premium",
       "availability": "interactive",
-      "notes": "Owns routing, integration, risky review, and hardware evidence."
+      "notes": "Owns routing, integration, risky review, and hardware evidence.",
+      "notes_zh": "负责任务路由、最终集成、高风险审查和硬件证据。"
     },
     {
       "id": "bench-workbuddy",
@@ -16,7 +17,8 @@
       "capabilities": ["code", "local", "research", "review", "low-cost"],
       "cost": "low",
       "availability": "interactive",
-      "notes": "Good for bounded implementation and repetitive analysis; no image input."
+      "notes": "Good for bounded implementation and repetitive analysis; no image input.",
+      "notes_zh": "适合边界清晰的实现和重复分析；不能识图。"
     },
     {
       "id": "mac-claude-client",
@@ -25,7 +27,8 @@
       "capabilities": ["vision", "research", "architecture", "review", "long-context"],
       "cost": "included-quota",
       "availability": "interactive",
-      "notes": "Use for screenshots, datasheets, architecture, and independent review; do not assume local file access."
+      "notes": "Use for screenshots, datasheets, architecture, and independent review; do not assume local file access.",
+      "notes_zh": "适合截图、数据手册、架构和独立审查；不能默认具备本地文件访问能力。"
     },
     {
       "id": "mac-claude-vscode",
@@ -34,7 +37,8 @@
       "capabilities": ["code", "local", "research", "review", "low-cost"],
       "cost": "low",
       "availability": "interactive",
-      "notes": "Local implementation with the current DeepSeek API; no image input."
+      "notes": "Local implementation with the current DeepSeek API; no image input.",
+      "notes_zh": "通过当前 DeepSeek API 做本地实现；不能识图。"
     }
   ],
   "routing": {

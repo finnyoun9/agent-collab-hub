@@ -1,5 +1,7 @@
 # Agent Collab Hub
 
+English | [简体中文](README.zh-CN.md)
+
 A lightweight control plane for coordinating heterogeneous coding agents across
 multiple computers. It uses GitHub Issues as the task queue, branches and pull
 requests as delivery boundaries, and Feishu as the human-facing notification
@@ -37,6 +39,14 @@ python scripts/collab.py agents
 python scripts/collab.py route --needs local,code --prefer low-cost
 python scripts/collab.py doctor
 ```
+
+Use Chinese output with `--lang zh` or `COLLAB_LANG=zh`:
+
+```bash
+python scripts/collab.py --lang zh route --needs vision,research --prefer vision
+```
+
+All text files and CLI output use UTF-8 across Windows, macOS, and Linux.
 
 To read or update GitHub Issues, provide credentials only through the process
 environment. Never commit them:

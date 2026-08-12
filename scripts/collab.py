@@ -17,6 +17,48 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_REPO = "finnyoun9/agent-collab-hub"
+MESSAGES = {
+    "en": {
+        "no_match": "No agent satisfies every required capability.",
+        "repository": "repository",
+        "branch": "branch",
+        "remote": "remote",
+        "working_tree": "working tree",
+        "clean": "clean",
+        "credential": "GitHub API write credential",
+        "available": "available",
+        "not_set": "not set",
+        "error": "error",
+    },
+    "zh": {
+        "no_match": "没有 Agent 同时满足全部能力要求。",
+        "repository": "仓库",
+        "branch": "分支",
+        "remote": "远端",
+        "working_tree": "工作区",
+        "clean": "干净",
+        "credential": "GitHub API 写入凭据",
+        "available": "可用",
+        "not_set": "未设置",
+        "error": "错误",
+    },
+}
+
+
+def language(args: argparse.Namespace | None = None) -> str:
+    value = getattr(args, "lang", None) or os.getenv("COLLAB_LANG", "en")
+    return value if value in MESSAGES else "en"
+
+
+def message(key: str, args: argparse.Namespace | None = None) -> str:
+    return MESSAGES[language(args)][key]
+
+
+def configure_stdio() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure:
+            reconfigure(encoding="utf-8")
 
 
 def load_config(path: Path | None = None) -> dict[str, Any]:
@@ -141,20 +183,23 @@ def command_agents(_: argparse.Namespace) -> int:
 def command_route(args: argparse.Namespace) -> int:
     matches = route_agents(load_config(), split_capabilities(args.needs), args.prefer)
     if not matches:
-        print("No agent satisfies every required capability.", file=sys.stderr)
+        print(message("no_match", args), file=sys.stderr)
         return 1
     for index, agent in enumerate(matches, start=1):
-        print(f"{index}. {agent['id']} - {agent['notes']}")
+        note_key = "notes_zh" if language(args) == "zh" else "notes"
+        print(f"{index}. {agent['id']} - {agent[note_key]}")
     return 0
 
 
-def command_doctor(_: argparse.Namespace) -> int:
+def command_doctor(args: argparse.Namespace) -> int:
     token_present = bool(os.getenv("GH_TOKEN") or os.getenv("GITHUB_TOKEN"))
-    print(f"repository: {git_output('rev-parse', '--show-toplevel')}")
-    print(f"branch: {git_output('branch', '--show-current')}")
-    print(f"remote: {git_output('remote', 'get-url', 'origin')}")
-    print(f"working tree: {git_output('status', '--short') or 'clean'}")
-    print(f"GitHub API write credential: {'available' if token_present else 'not set'}")
+    clean = message("clean", args)
+    credential = message("available" if token_present else "not_set", args)
+    print(f"{message('repository', args)}: {git_output('rev-parse', '--show-toplevel')}")
+    print(f"{message('branch', args)}: {git_output('branch', '--show-current')}")
+    print(f"{message('remote', args)}: {git_output('remote', 'get-url', 'origin')}")
+    print(f"{message('working_tree', args)}: {git_output('status', '--short') or clean}")
+    print(f"{message('credential', args)}: {credential}")
     return 0
 
 
@@ -182,6 +227,12 @@ def command_handoff(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--lang",
+        choices=["en", "zh"],
+        default=os.getenv("COLLAB_LANG", "en"),
+        help="interface language / 界面语言",
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     agents = subparsers.add_parser("agents", help="list configured agents")
@@ -229,11 +280,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    configure_stdio()
     args = build_parser().parse_args()
     try:
         return int(args.func(args))
     except RuntimeError as exc:
-        print(f"error: {exc}", file=sys.stderr)
+        print(f"{message('error', args)}: {exc}", file=sys.stderr)
         return 2
 
 

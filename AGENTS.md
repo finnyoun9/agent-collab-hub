@@ -53,3 +53,12 @@ humans and simple automation can parse the comment.
   user instructions.
 - External writes, merges, releases, and hardware flashing require explicit task
   scope and appropriate review.
+
+## Language support
+
+- English and Simplified Chinese are first-class user interfaces.
+- Update both language variants when changing user-facing documentation,
+  templates, CLI messages, or Feishu cards.
+- Keep machine-readable protocol keywords and field names in English:
+  `CLAIM`, `HEARTBEAT`, `HANDOFF`, `VERIFIED`, `NOT VERIFIED`, and `NEXT`.
+- Chinese and English content may follow those stable headings.
