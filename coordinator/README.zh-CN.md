@@ -9,6 +9,8 @@
 
 当前版本不会自动操作 WorkBuddy、Codex Desktop 或 Claude 客户端。
 
+协调器会立即确认飞书事件，再异步执行 GitHub 操作，并按飞书 `message_id` 去重，避免超时重推产生重复 Issue。
+
 ## 安全配置
 
 先在飞书开放平台重置已经暴露过的 App Secret。新 Secret 只写入 Windows 用户环境变量：

@@ -22,4 +22,12 @@ describe("parseCommand", () => {
       kind: "queue",
     });
   });
+
+  it("removes a plain-text Feishu mention before a command", () => {
+    expect(parseCommand("@Coconut /assign 10 bench-workbuddy")).toEqual({
+      kind: "assign",
+      issue: 10,
+      agentId: "bench-workbuddy",
+    });
+  });
 });

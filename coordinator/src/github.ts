@@ -106,19 +106,10 @@ export class GhCliGitHub implements GitHubPort {
   async assign(issue: number, agentId: string): Promise<TaskSummary> {
     if (!AGENTS.has(agentId)) throw new Error(`Unknown agent: ${agentId}`);
     const current = await this.getTask(issue);
-    const oldAgentLabels = current.labels.filter((label) => label.startsWith("agent:"));
-    for (const label of oldAgentLabels) {
-      await this.gh([
-        "issue",
-        "edit",
-        String(issue),
-        "--repo",
-        this.repo,
-        "--remove-label",
-        label,
-      ]);
-    }
-    await this.gh([
+    const oldLabels = current.labels.filter(
+      (label) => label.startsWith("agent:") || label.startsWith("state:"),
+    );
+    const editArgs = [
       "issue",
       "edit",
       String(issue),
@@ -128,7 +119,9 @@ export class GhCliGitHub implements GitHubPort {
       `agent:${agentId}`,
       "--add-label",
       "state:ready",
-    ]);
+    ];
+    for (const label of oldLabels) editArgs.push("--remove-label", label);
+    await this.gh(editArgs);
     await this.gh([
       "issue",
       "comment",

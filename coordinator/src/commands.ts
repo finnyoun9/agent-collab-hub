@@ -1,11 +1,12 @@
 import type { Command } from "./types.js";
 
 function normalizedText(value: string): string {
-  return value
+  const text = value
     .replace(/<at\b[^>]*>.*?<\/at>/giu, " ")
     .replace(/@_user_\d+/gu, " ")
     .replace(/\s+/gu, " ")
     .trim();
+  return text.replace(/^@\S+\s+(?=\/)/u, "");
 }
 
 export function parseCommand(input: string): Command {
