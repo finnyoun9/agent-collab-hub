@@ -24,6 +24,7 @@ runtime. Each agent only needs GitHub access and this repository's protocol.
 
 ```text
 /task <goal>                 create a triage issue
+/quick <goal>                create and assign a low-risk task to bench-workbuddy
 /queue                       list ready, claimed, and blocked tasks
 /assign <issue> <agent-id>   set owner and capability label
 /handoff <issue>             show the latest handoff

@@ -17,6 +17,7 @@ export class CoordinatorService {
           ? [
               "Agent Hub 已连接。",
               "/task <目标> 创建任务",
+              "/quick <目标> 创建并分配给 bench-workbuddy",
               "/queue 查看队列",
               "/status <编号> 查看状态",
               "/assign <编号> <agent-id> 分配任务",
@@ -24,6 +25,7 @@ export class CoordinatorService {
           : [
               "Agent Hub is connected.",
               "/task <goal> create a task",
+              "/quick <goal> create and assign to bench-workbuddy",
               "/queue list the queue",
               "/status <number> show status",
               "/assign <number> <agent-id> assign a task",
@@ -31,6 +33,16 @@ export class CoordinatorService {
       case "task": {
         const task = await this.github.createTask(command.goal);
         return this.renderTask(this.lang === "zh" ? "任务已创建" : "Task created", task);
+      }
+      case "quick": {
+        const task = await this.github.createTask(command.goal);
+        const assigned = await this.github.assign(task.number, "bench-workbuddy");
+        return this.renderTask(
+          this.lang === "zh"
+            ? "快速任务已创建并分配给 bench-workbuddy"
+            : "Quick task created and assigned to bench-workbuddy",
+          assigned,
+        );
       }
       case "queue": {
         const tasks = await this.github.listQueue();

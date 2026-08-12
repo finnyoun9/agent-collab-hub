@@ -39,11 +39,13 @@ triage -> ready -> claimed -> in-progress -> review -> verify -> done
 ## 路由原则
 
 1. 纯视觉任务优先给 `mac-claude-client`。
-2. 边界清晰的本地编码优先给低成本本地 Agent。
+2. 低风险、边界清晰、可测试的本地编码默认给 `bench-workbuddy`。它可以在自己的独立 clone 中修改、测试、commit、push、创建 PR 并发布 `HANDOFF`。
 3. 硬件烧录和测量给 `bench-codex`。
 4. 架构和开放式调研给 `mac-claude-client`，主控再把结论转成可执行任务。
 5. 高风险或跨模块工作交回 `bench-codex` 集成。
 6. 条件允许时，作者和审查者使用不同模型或客户端。
+
+WorkBuddy 不得合并 PR、直接提交 `main`、部署、发布、处理密钥、烧录硬件、破坏性操作设备、删除或重建 `.git`、手工写 Git refs，也不能超出已领取范围。这些操作必须交回主控或人工审批边界。
 
 ## 领取与租约
 

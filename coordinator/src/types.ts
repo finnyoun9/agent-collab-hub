@@ -3,6 +3,7 @@ export type Language = "en" | "zh";
 export type Command =
   | { kind: "help" }
   | { kind: "task"; goal: string }
+  | { kind: "quick"; goal: string }
   | { kind: "queue" }
   | { kind: "status"; issue: number }
   | { kind: "assign"; issue: number; agentId: string };

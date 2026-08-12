@@ -32,6 +32,19 @@ instructions of the target project.
   `RECLAIMED` comment.
 - The coordinator owns final integration and conflict resolution.
 
+## WorkBuddy fast-development authority
+
+- `bench-workbuddy` is the default first-line developer for low-risk, bounded,
+  testable tasks that do not require image input.
+- In its own clone and claimed task branch, it may edit files, run tests and
+  formatters, commit, push, open a pull request, and post `HANDOFF` without
+  waiting for another approval.
+- It must not merge pull requests, commit to `main`, deploy, publish releases,
+  handle secrets, flash hardware, perform destructive device actions, delete or
+  recreate `.git`, manually write Git refs, or expand beyond the claimed scope.
+- Medium/high-risk, cross-module, visual, hardware, credential, deployment, and
+  ambiguous architecture work still requires coordinator routing and independent review.
+
 ## Handoff contract
 
 Every handoff must include:

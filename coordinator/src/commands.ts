@@ -17,6 +17,9 @@ export function parseCommand(input: string): Command {
   const task = text.match(/^\/task\s+(.+)$/iu);
   if (task?.[1]) return { kind: "task", goal: task[1].trim() };
 
+  const quick = text.match(/^\/quick\s+(.+)$/iu);
+  if (quick?.[1]) return { kind: "quick", goal: quick[1].trim() };
+
   const status = text.match(/^\/status\s+#?(\d+)$/iu);
   if (status?.[1]) return { kind: "status", issue: Number(status[1]) };
 

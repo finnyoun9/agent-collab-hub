@@ -60,6 +60,7 @@ Agent Hub starting for finnyoun9/agent-collab-hub; waiting for Feishu messages..
 ```text
 /help
 /task <目标>
+/quick <低风险、边界清晰、可测试的目标>
 /queue
 /status <issue 编号>
 /assign <issue 编号> <agent-id>
@@ -69,7 +70,8 @@ Agent Hub starting for finnyoun9/agent-collab-hub; waiting for Feishu messages..
 
 ```text
 @Agent Hub /task 验证 UART circular DMA 是否丢字节
+@Agent Hub /quick 修正文档中的失效链接并跑测试
 @Agent Hub /assign 4 bench-workbuddy
 ```
 
-分配给 WorkBuddy 后，你仍然需要打开 WorkBuddy，把 Issue URL 交给它，并在客户端里处理权限确认。
+`/quick` 会直接创建 Issue 并标记 `agent:bench-workbuddy`、`state:ready`。随后仍需打开 WorkBuddy，把 Issue URL 交给它；WorkBuddy 可在独立 clone 中自主修改、测试、commit、push 和开 PR，客户端自身的权限确认仍在客户端处理。合并、部署、硬件、密钥和破坏性操作不在快速授权范围内。

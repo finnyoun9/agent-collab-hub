@@ -18,6 +18,7 @@
 
 ```text
 /task <目标>                创建待分流 Issue
+/quick <目标>               创建低风险任务并分配给 bench-workbuddy
 /queue                      查看 ready、claimed、blocked 任务
 /assign <issue> <agent-id>  指定负责人
 /handoff <issue>            查看最新交接

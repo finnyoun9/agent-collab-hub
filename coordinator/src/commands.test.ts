@@ -9,6 +9,13 @@ describe("parseCommand", () => {
     });
   });
 
+  it("parses quick WorkBuddy tasks", () => {
+    expect(parseCommand("/quick 修正文档链接")).toEqual({
+      kind: "quick",
+      goal: "修正文档链接",
+    });
+  });
+
   it("parses assignment", () => {
     expect(parseCommand("/assign #12 bench-workbuddy")).toEqual({
       kind: "assign",

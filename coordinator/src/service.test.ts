@@ -29,4 +29,11 @@ describe("CoordinatorService", () => {
     const service = new CoordinatorService(github, "en");
     await expect(service.execute({ kind: "queue" })).resolves.toContain("#7");
   });
+
+  it("creates and assigns a quick task to WorkBuddy", async () => {
+    const service = new CoordinatorService(github, "zh");
+    await expect(service.execute({ kind: "quick", goal: "修正文档链接" })).resolves.toContain(
+      "bench-workbuddy",
+    );
+  });
 });

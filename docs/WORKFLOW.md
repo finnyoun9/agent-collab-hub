@@ -56,12 +56,18 @@ Suggested labels:
 
 1. Vision input routes to `mac-claude-client` unless local/hardware access is
    also required. It returns observations as an issue comment or artifact.
-2. Bounded local coding routes first to a low-cost local worker.
+2. Low-risk, bounded, testable local coding defaults to `bench-workbuddy`. In
+   its own clone it may edit, test, commit, push, open a PR, and post `HANDOFF`.
 3. Hardware flashing and measurement route to `bench-codex`.
 4. Architecture and ambiguous research route to `mac-claude-client`; the
    coordinator converts conclusions into an executable task.
 5. High-risk or cross-module work returns to `bench-codex` for integration.
 6. Review should use a different model/client from the author when possible.
+
+WorkBuddy does not merge, commit to `main`, deploy, publish, handle secrets,
+flash hardware, modify devices destructively, rebuild `.git`, write refs
+manually, or expand beyond the claimed scope. Those actions return to the
+coordinator or the human approval boundary.
 
 ## Claim
 
