@@ -1,0 +1,46 @@
+{
+  "agents": [
+    {
+      "id": "bench-codex",
+      "display_name": "Bench Codex",
+      "role": "coordinator",
+      "capabilities": ["code", "local", "vision", "research", "review", "hardware", "integration"],
+      "cost": "premium",
+      "availability": "interactive",
+      "notes": "Owns routing, integration, risky review, and hardware evidence."
+    },
+    {
+      "id": "bench-workbuddy",
+      "display_name": "Bench WorkBuddy",
+      "role": "worker",
+      "capabilities": ["code", "local", "research", "review", "low-cost"],
+      "cost": "low",
+      "availability": "interactive",
+      "notes": "Good for bounded implementation and repetitive analysis; no image input."
+    },
+    {
+      "id": "mac-claude-client",
+      "display_name": "Mac Claude Client",
+      "role": "specialist",
+      "capabilities": ["vision", "research", "architecture", "review", "long-context"],
+      "cost": "included-quota",
+      "availability": "interactive",
+      "notes": "Use for screenshots, datasheets, architecture, and independent review; do not assume local file access."
+    },
+    {
+      "id": "mac-claude-vscode",
+      "display_name": "Mac Claude VS Code",
+      "role": "worker",
+      "capabilities": ["code", "local", "research", "review", "low-cost"],
+      "cost": "low",
+      "availability": "interactive",
+      "notes": "Local implementation with the current DeepSeek API; no image input."
+    }
+  ],
+  "routing": {
+    "coordinator": "bench-codex",
+    "final_integrator": "bench-codex",
+    "prefer_independent_reviewer": true,
+    "lease_hours": 8
+  }
+}

@@ -1,0 +1,66 @@
+name: Agent task
+description: Create a routable task for one agent
+title: "[Task]: "
+labels:
+  - state:triage
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: State one verifiable outcome.
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Target repository
+      placeholder: owner/repository
+    validations:
+      required: true
+  - type: dropdown
+    id: capabilities
+    attributes:
+      label: Primary capability
+      options:
+        - code + local workspace
+        - vision / image analysis
+        - research / architecture
+        - hardware verification
+        - independent review
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Allowed scope
+      description: Files, modules, devices, and external systems the agent may touch.
+    validations:
+      required: true
+  - type: textarea
+    id: forbidden
+    attributes:
+      label: Do not touch
+      description: Explicit exclusions and risky operations.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Tests, measurements, screenshots, or other evidence required.
+    validations:
+      required: true
+  - type: textarea
+    id: learning
+    attributes:
+      label: Learning goal
+      description: Optional new technique to learn and the artifact that proves it landed.
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk
+      options:
+        - low
+        - medium
+        - high
+    validations:
+      required: true
