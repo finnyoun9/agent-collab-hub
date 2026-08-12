@@ -9,6 +9,7 @@
 | Pull request | review discussion and merge gate |
 | Feishu | notification, quick commands, human decisions |
 | Project docs | stable architecture and verified knowledge |
+| Decision log ([DECISIONS.md](../DECISIONS.md)) | settled conclusions, not re-litigated |
 
 Feishu chat is not canonical project state. Important decisions made there must
 be copied to the issue, PR, or project documentation.
