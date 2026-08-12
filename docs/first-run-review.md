@@ -28,7 +28,7 @@ pull request, and one structured handoff comment.
 |---|---|
 | `python scripts/collab.py agents` | 4 agents listed, matches `config/agents.json` |
 | `python scripts/collab.py doctor` | repo/branch/remote/clean reported correctly |
-| `python scripts/collab.py doctor` | `GitHub API write credential: not set` (false negative) |
+| `python scripts/collab.py doctor` | `GitHub API write credential: not set` (direct API token absent in that process; `gh` auth is separate) |
 | `python scripts/collab.py route --needs local,research --prefer low-cost` | bench-workbuddy, mac-claude-vscode, bench-codex |
 | `python -m unittest discover tests -v` | 10 tests, all passed |
 | `gh issue create ... --label state:triage` | issue #1 created |
@@ -41,7 +41,7 @@ These are observations from the perspective of the agent that the hub routes
 bounded local work to. None of them blocks the loop; all of them cost time or
 risk the next run.
 
-### 3.1 `doctor` misreports a working GitHub credential
+### 3.1 `doctor` does not explain the difference between its API token and `gh` auth
 
 `command_doctor` only checks `GH_TOKEN` / `GITHUB_TOKEN` environment variables.
 This run authenticated with `gh auth` (the keyring) and the write command
@@ -51,8 +51,17 @@ This run authenticated with `gh auth` (the keyring) and the write command
 GitHub API write credential: not set
 ```
 
-Suggested fix: also probe `gh auth status` / `gh api user` when the token
-environment variables are absent, and print the effective auth source.
+This is not a false negative for `collab.py`: its `GitHubClient` sends requests
+with Python's `urllib` and requires `GH_TOKEN` or `GITHUB_TOKEN` for writes. A
+credential stored by `gh auth login` can make `gh` commands work, but it is not
+automatically available to that Python client. The successful CLAIM therefore
+does not prove that `collab.py` read the `gh` keyring; the token may have been
+provided for that invocation, or the comment may have been posted through a
+different path.
+
+Suggested fix: rename the diagnostic to `collab.py write token
+(GH_TOKEN/GITHUB_TOKEN)` and, if useful, report `gh auth status` separately.
+Do not merge the two authentication paths into one result.
 
 ### 3.2 No declared Python dependency for the test suite
 
@@ -125,8 +134,8 @@ otherwise.
 
 Prioritized by expected impact:
 
-1. **Fix `doctor` auth detection** (3.1) — the first command every agent runs
-   on a new machine currently lies about a working setup.
+1. **Clarify `doctor` auth scope** (3.1) — distinguish the direct API token
+   used by `collab.py` from the separate `gh` CLI credential.
 2. **Add `need:*` label multi-select to the issue form** (3.4) — routing
    quality depends on structured capabilities, not free text.
 3. **Surface lease expiry in `status`** (3.5) — reclaiming a stale lease is
@@ -144,30 +153,30 @@ or `mac-claude-vscode` available for the bounded implementation pieces.
 - New technique: running the full claim-branch-PR-handoff loop of this hub
   from a low-cost worker's seat and recording findings as a durable artifact.
 - Reproducible artifact: this document, issue #1, the branch, and the PR.
-- Wrong assumption corrected by evidence: the environment proxy is required
-  for `git` even though `gh api` succeeds without explicit configuration;
-  network troubleshooting belongs in every agent's onboarding checklist.
+- Wrong assumption corrected by evidence: a working `gh` command does not
+  prove that `git` or `collab.py` shares its authentication or proxy path;
+  each path must be diagnosed separately.
 
 ## 7. Incident log (important)
 
-Mid-run, the local git metadata was corrupted twice. The first incident
-happened while recovering from an unborn HEAD state: a manual file-move
-operation destroyed the `.git` directory contents and git stopped recognizing
-the repository. The second incident recreated the same unborn-HEAD symptom
-after a fresh `git init` + `fetch`, where the branch ref was not written. Both
-times the recovery rebuilt the local repository from the remote.
+The local Git metadata was deleted and rebuilt repeatedly during the first run
+and the follow-up task. The command audit records explicit `rm -rf .git`
+invocations, including commands proposed after branch or checkout failures.
+There is no evidence that `git switch` or `git checkout` deleted `.git` by
+itself, so the incident must not be documented as a Git or filesystem bug.
 
-- **Root cause**: manual working-tree moves and repeated `.git` rebuilds
-  during HEAD repair; a fresh `git init` on a directory whose files are not yet
-  committed can leave HEAD pointing at a ref that does not exist.
-- **Recovery**: `rm -rf .git && git init -b main && git remote add origin <url>
-  && git fetch origin main && git checkout -b <branch> origin/main`.
-- **Lesson**: never move or delete working-tree files to fix git state; use
-  `git switch -c <branch> origin/main` only. Verify `.git` integrity before any
-  destructive git operation, and keep artifact files out of the way of git
-  repair steps.
-- **Improvement**: this incident validates D-001 — GitHub as the single source
-  of truth makes a corrupted local clone fully recoverable. Suggest adding a
-  "recovering a corrupted local clone" section to the WORKFLOW docs, and
-  documenting that the very first branch creation on a fresh clone must happen
-  before any local commit.
+- **Root cause supported by evidence**: destructive recovery commands were run
+  inside a checkout shared by multiple agents. Reinitializing the repository
+  and manually writing refs then produced additional invalid or confusing Git
+  states.
+- **Safe recovery**: stop mutating the affected directory, preserve it for
+  diagnosis, and clone the remote repository into a new directory. Verify the
+  new clone with `git status`, `git rev-parse HEAD`, and `git fsck` before
+  copying any uncommitted artifact deliberately.
+- **Lesson**: never delete or recreate `.git` in place, run `git init` as a
+  repair inside an existing checkout, or manually write `.git/refs`. Give each
+  concurrently running agent its own clone; give long-running services a
+  separate runtime clone that agents do not edit.
+- **Improvement**: document isolated clones and fresh-clone recovery as the
+  supported procedure. Keep GitHub as the durable exchange point, but do not
+  assume every uncommitted local artifact is recoverable from the remote.

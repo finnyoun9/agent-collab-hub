@@ -24,7 +24,7 @@
 |---|---|
 | `python scripts/collab.py agents` | 4 个 agent，与 `config/agents.json` 一致 |
 | `python scripts/collab.py doctor` | repo/branch/remote/clean 报告正确 |
-| `python scripts/collab.py doctor` | `GitHub API write credential: not set`（误报） |
+| `python scripts/collab.py doctor` | `GitHub API write credential: not set`（该进程缺少直接 API token；`gh` 认证是另一条路径） |
 | `python scripts/collab.py route --needs local,research --prefer low-cost` | bench-workbuddy、mac-claude-vscode、bench-codex |
 | `python -m unittest discover tests -v` | 10 个测试全部通过 |
 | `gh issue create ... --label state:triage` | issue #1 创建成功 |
@@ -35,7 +35,7 @@
 
 以下是从 hub 路由给"边界清晰的本地工作"的那个 agent 的视角观察到的。没有一条会阻断链路，但每条都在消耗时间或给下一次运行带来风险。
 
-### 3.1 `doctor` 对可用的 GitHub 凭据误报
+### 3.1 `doctor` 没有说明 API token 与 `gh` 认证的区别
 
 `command_doctor` 只检查 `GH_TOKEN` / `GITHUB_TOKEN` 环境变量。本次运行通过 `gh auth`（keyring）认证，写操作（`collab.py claim`）实际成功，但 `doctor` 仍然输出：
 
@@ -43,7 +43,9 @@
 GitHub API write credential: not set
 ```
 
-建议修复：当 token 环境变量缺失时，改用 `gh auth status` / `gh api user` 探测，并打印实际生效的认证来源。
+对 `collab.py` 来说，这并不是误报：它的 `GitHubClient` 使用 Python `urllib` 发请求，写操作必须有 `GH_TOKEN` 或 `GITHUB_TOKEN`。`gh auth login` 存下的凭据可以让 `gh` 命令工作，但不会自动提供给这个 Python 客户端。因此，CLAIM 成功不能证明 `collab.py` 读取了 `gh` keyring；当次调用可能单独提供了 token，也可能通过另一条路径发布了评论。
+
+建议把诊断项改名为 `collab.py write token (GH_TOKEN/GITHUB_TOKEN)`；如果需要，再单独显示 `gh auth status`。两条认证路径不能合并成一个结果。
 
 ### 3.2 测试套件缺少依赖声明
 
@@ -80,7 +82,7 @@ GitHub API write credential: not set
 
 按预期影响排序：
 
-1. **修复 `doctor` 的认证检测**（3.1）——每个 agent 在新机器上跑的第一条命令，目前会对一个可用环境撒谎。
+1. **明确 `doctor` 的认证范围**（3.1）——区分 `collab.py` 使用的直接 API token 和 `gh` CLI 的独立凭据。
 2. **给 issue 表单加 `need:*` 标签多选**（3.4）——路由质量依赖结构化能力，而不是自由文本。
 3. **在 `status` 中展示租期到期**（3.5）——回收过期租期目前完全不可见。
 4. **在明显位置声明测试调用方式**（3.2）——将来的 agent 不应该靠读测试文件才知道怎么跑。
@@ -92,13 +94,13 @@ GitHub API write credential: not set
 
 - 新技术：以低成本 worker 的视角完整走一遍本 hub 的 claim-分支-PR-handoff 链路，并把发现沉淀为持久产物。
 - 可复现产物：本文档、issue #1、分支和 PR。
-- 被证据纠正的错误假设：`git` 必须走环境代理，而 `gh api` 不做显式配置也能通；网络排障应写进每个 agent 的上手清单。
+- 被证据纠正的错误假设：`gh` 命令能工作，不代表 `git` 或 `collab.py` 共用它的认证或代理路径；三条路径必须分别诊断。
 
 ## 7. 运行事故记录（重要）
 
-本次运行中途本地 git 元数据损坏了两次。第一次发生在修复 unborn HEAD 状态时：手动移动工作区文件的操作破坏了 `.git` 目录内容，git 不再识别仓库。第二次在 `git init` + `fetch` 重建后再次出现同样的 unborn-HEAD 症状——分支 ref 没有写入。两次都通过从远端重建本地仓库恢复。
+首次运行和后续修复任务中，本地 Git 元数据被多次删除并重建。命令审计记录明确包含 `rm -rf .git`，其中也包括分支或 checkout 失败后由 Agent 提出的命令。没有证据表明 `git switch` 或 `git checkout` 会自行删除 `.git`，因此不能把事故记录成 Git 或文件系统 bug。
 
-- **事故原因**：修复 HEAD 期间手动移动/删除工作区文件、反复重建 `.git`；在文件尚未提交的目录上执行 `git init` 会让 HEAD 指向不存在的 ref。
-- **恢复方式**：`rm -rf .git && git init -b main && git remote add origin <url> && git fetch origin main && git checkout -b <branch> origin/main`。
-- **教训**：修复 git 状态时绝不要移动或删除工作区文件，只用 `git switch -c <branch> origin/main`；任何破坏性 git 操作前先验证 `.git` 完整性；产物文件要放在 git 修复步骤够不到的地方。
-- **改进建议**：这次事故正好验证了 D-001——GitHub 作为唯一事实来源，本地仓库损坏可以无损恢复。建议在 WORKFLOW 文档补充"本地仓库损坏恢复"一节，并写明：全新克隆上第一次建分支必须发生在任何本地提交之前。
+- **证据支持的原因**：在多个 Agent 共用的 checkout 中执行了破坏性恢复命令；随后原地重新初始化仓库并手工写 ref，又制造了更多无效或混乱的 Git 状态。
+- **安全恢复方式**：停止修改受影响目录，保留现场用于诊断，在新目录重新 clone 远端仓库。复制任何未提交产物前，先用 `git status`、`git rev-parse HEAD` 和 `git fsck` 验证新副本。
+- **教训**：不得原地删除或重建 `.git`，不得把 `git init` 当作已有 checkout 的修复手段，也不得手工写 `.git/refs`。并发运行的每个 Agent 使用独立 clone；常驻服务使用 Agent 不编辑的专用运行副本。
+- **改进建议**：把“独立 clone + 新目录重新 clone 恢复”写成唯一支持流程。GitHub 继续作为持久交换点，但不能假设远端能恢复所有未提交的本地产物。
