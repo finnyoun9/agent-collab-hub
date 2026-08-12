@@ -15,6 +15,20 @@
 
 飞书聊天不是项目状态的唯一事实源。重要结论必须回写 Issue、PR、`DECISIONS.md` 或项目文档。
 
+## 本地工作区隔离
+
+即使 Agent 在同一台电脑上并发运行，也必须各用一个独立 clone。一个 checkout 中的不同分支仍会共享 `HEAD`、暂存区和工作目录文件，不能作为并发隔离边界。
+
+常驻 coordinator 或其他服务再使用一个专用运行副本：
+
+```text
+agent-collab-hub-codex/        # Codex 开发
+agent-collab-hub-workbuddy/    # WorkBuddy 开发
+agent-collab-hub-coordinator/  # 只运行服务，Agent 不在这里开发
+```
+
+每个开发副本内部仍按“一项 Issue 一个任务分支”工作。Agent 之间只通过 commit、push、Pull Request 和 Issue 评论交换成果。仓库异常时，不得通过删除 `.git`、在原目录执行 `git init` 或手工写 Git refs 来原地修复；应保留现场用于诊断，并重新 clone 到新目录。
+
 ## 状态流转
 
 ```text
@@ -34,6 +48,8 @@ triage -> ready -> claimed -> in-progress -> review -> verify -> done
 ## 领取与租约
 
 Agent 开工前必须发布结构化 `CLAIM`。长任务在 lease 到期前发布一次 `HEARTBEAT`。过期任务只能由主控发布 `RECLAIMED` 后重新分配。
+
+任务分支必须在该 Agent 自己的 clone 中从最新 `origin/main` 创建。
 
 协议关键字和字段名固定使用英文，内容可以使用中文或英文：
 

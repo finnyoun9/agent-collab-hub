@@ -16,6 +16,26 @@ English | [简体中文](WORKFLOW.zh-CN.md)
 Feishu chat is not canonical project state. Important decisions made there must
 be copied to the issue, PR, or project documentation.
 
+## Local workspace isolation
+
+Every concurrently running local agent must use a separate clone, even when the
+agents run on the same computer. Different branches inside one checkout still
+share `HEAD`, the index, and working-tree files, so they are not a concurrency
+boundary.
+
+Use a dedicated third clone for a long-running coordinator or other service:
+
+```text
+agent-collab-hub-codex/        # Codex development
+agent-collab-hub-workbuddy/    # WorkBuddy development
+agent-collab-hub-coordinator/  # runtime only; agents do not edit here
+```
+
+Each development clone still uses one task branch per issue. Exchange work only
+through commits, pushes, pull requests, and issue comments. Do not repair a
+damaged checkout in place by deleting `.git`, running `git init`, or manually
+writing Git refs. Preserve it for diagnosis and create a fresh clone instead.
+
 ## Task states
 
 ```text
@@ -56,7 +76,7 @@ Files: src/foo.c, tests/test_foo.py
 Lease until: 2026-08-13T20:00:00+08:00
 ```
 
-Then create the branch from current `origin/main`:
+Then create the branch from current `origin/main` in that agent's own clone:
 
 ```bash
 git fetch origin

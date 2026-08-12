@@ -12,6 +12,17 @@ instructions of the target project.
    expected files, and lease expiry.
 5. Work only on the named branch or worktree. Never commit directly to `main`.
 
+## Local checkout isolation
+
+- Every concurrently running local agent uses its own clone, including agents
+  on the same computer. Never share one checkout between agents.
+- A long-running coordinator or service uses a dedicated runtime clone. Do not
+  edit, switch branches, or commit from that clone.
+- Never delete or recreate `.git` inside an existing checkout, run `git init`
+  there as recovery, or manually write files under `.git/refs`.
+- If Git metadata appears damaged, stop mutating that checkout, preserve it for
+  diagnosis, and create a fresh clone in a new directory.
+
 ## Ownership and conflict rules
 
 - One issue has one active owner.

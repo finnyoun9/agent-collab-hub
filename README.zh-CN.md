@@ -15,7 +15,7 @@
 GitHub Issue（任务 + 验收标准）
       |
       v
-路由器 -> 单一负责人 -> 独立分支/worktree
+路由器 -> 单一负责人 -> 独立工作副本 + 任务分支
       |
       v
 PR + 测试证据 -> 独立审查 -> 集成
@@ -67,6 +67,8 @@ python scripts/collab.py --lang zh status --repo finnyoun9/agent-collab-hub
 ## 核心约定
 
 - 一个任务只有一个负责人和一个分支。
+- 同一台电脑上并发运行的每个 Agent 也必须使用独立 clone。只分分支不能隔离共享工作区里的 `HEAD`、暂存区和文件。
+- 常驻服务使用独立运行副本，编码 Agent 不在该目录中开发。
 - Agent 通过可审查产物协作，不假设共享聊天记忆。
 - `CLAIM` 是有期限的 lease，不是永久占有。
 - 高风险改动的作者不能做最终审查。
