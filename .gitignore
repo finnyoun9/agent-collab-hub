@@ -7,3 +7,7 @@ __pycache__/
 .vscode/
 .idea/
 .collab-cache/
+coordinator/node_modules/
+coordinator/dist/
+coordinator/.state/
+coordinator/*.log

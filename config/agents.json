@@ -17,8 +17,8 @@
       "capabilities": ["code", "local", "research", "review", "low-cost"],
       "cost": "low",
       "availability": "interactive",
-      "notes": "Good for bounded implementation and repetitive analysis; no image input.",
-      "notes_zh": "适合边界清晰的实现和重复分析；不能识图。"
+      "notes": "Default first-line developer for low-risk, bounded, testable tasks. May edit, test, commit, push, and open PRs in its own clone; no image input.",
+      "notes_zh": "低风险、边界清晰、可测试任务的默认一线开发 Agent。可在独立 clone 中修改、测试、提交、推送和创建 PR；不能识图。"
     },
     {
       "id": "mac-claude-client",
@@ -44,6 +44,7 @@
   "routing": {
     "coordinator": "bench-codex",
     "final_integrator": "bench-codex",
+    "default_worker": "bench-workbuddy",
     "prefer_independent_reviewer": true,
     "lease_hours": 8
   }

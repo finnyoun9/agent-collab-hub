@@ -15,7 +15,7 @@
 GitHub Issue（任务 + 验收标准）
       |
       v
-路由器 -> 单一负责人 -> 独立分支/worktree
+路由器 -> 单一负责人 -> 独立工作副本 + 任务分支
       |
       v
 PR + 测试证据 -> 独立审查 -> 集成
@@ -58,7 +58,7 @@ python scripts/collab.py --lang zh status --repo finnyoun9/agent-collab-hub
 | Agent | 最适合 | 主要限制 |
 |---|---|---|
 | bench Codex | 主控、集成、硬件验证 | 高价值额度 |
-| bench WorkBuddy | 本地编码、重复工作、快速检查 | 不能识图 |
+| bench WorkBuddy | 默认承接低风险开发、重复工作、快速检查 | 不能识图；不能合并、部署或操作硬件 |
 | Mac Claude client | 视觉分析、调研、架构审查 | 可能不能访问本地工作区 |
 | Mac Claude VS Code | 本地编码和审查 | 当前 API 不能识图 |
 
@@ -67,6 +67,9 @@ python scripts/collab.py --lang zh status --repo finnyoun9/agent-collab-hub
 ## 核心约定
 
 - 一个任务只有一个负责人和一个分支。
+- 低风险、边界清晰、可测试的实现任务默认交给 `bench-workbuddy`。
+- 同一台电脑上并发运行的每个 Agent 也必须使用独立 clone。只分分支不能隔离共享工作区里的 `HEAD`、暂存区和文件。
+- 常驻服务使用独立运行副本，编码 Agent 不在该目录中开发。
 - Agent 通过可审查产物协作，不假设共享聊天记忆。
 - `CLAIM` 是有期限的 lease，不是永久占有。
 - 高风险改动的作者不能做最终审查。
@@ -76,3 +79,5 @@ python scripts/collab.py --lang zh status --repo finnyoun9/agent-collab-hub
 - 密钥只放环境变量或 GitHub/飞书 secret store。
 
 所有文本文件和 CLI 输出统一使用 UTF-8，保证 Windows、macOS 和 Linux 上的中英文内容一致。
+
+bench 上的飞书长连接协调器见 [coordinator/README.zh-CN.md](coordinator/README.zh-CN.md)。

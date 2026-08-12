@@ -16,6 +16,26 @@ English | [简体中文](WORKFLOW.zh-CN.md)
 Feishu chat is not canonical project state. Important decisions made there must
 be copied to the issue, PR, or project documentation.
 
+## Local workspace isolation
+
+Every concurrently running local agent must use a separate clone, even when the
+agents run on the same computer. Different branches inside one checkout still
+share `HEAD`, the index, and working-tree files, so they are not a concurrency
+boundary.
+
+Use a dedicated third clone for a long-running coordinator or other service:
+
+```text
+agent-collab-hub-codex/        # Codex development
+agent-collab-hub-workbuddy/    # WorkBuddy development
+agent-collab-hub-coordinator/  # runtime only; agents do not edit here
+```
+
+Each development clone still uses one task branch per issue. Exchange work only
+through commits, pushes, pull requests, and issue comments. Do not repair a
+damaged checkout in place by deleting `.git`, running `git init`, or manually
+writing Git refs. Preserve it for diagnosis and create a fresh clone instead.
+
 ## Task states
 
 ```text
@@ -36,12 +56,18 @@ Suggested labels:
 
 1. Vision input routes to `mac-claude-client` unless local/hardware access is
    also required. It returns observations as an issue comment or artifact.
-2. Bounded local coding routes first to a low-cost local worker.
+2. Low-risk, bounded, testable local coding defaults to `bench-workbuddy`. In
+   its own clone it may edit, test, commit, push, open a PR, and post `HANDOFF`.
 3. Hardware flashing and measurement route to `bench-codex`.
 4. Architecture and ambiguous research route to `mac-claude-client`; the
    coordinator converts conclusions into an executable task.
 5. High-risk or cross-module work returns to `bench-codex` for integration.
 6. Review should use a different model/client from the author when possible.
+
+WorkBuddy does not merge, commit to `main`, deploy, publish, handle secrets,
+flash hardware, modify devices destructively, rebuild `.git`, write refs
+manually, or expand beyond the claimed scope. Those actions return to the
+coordinator or the human approval boundary.
 
 ## Claim
 
@@ -56,7 +82,7 @@ Files: src/foo.c, tests/test_foo.py
 Lease until: 2026-08-13T20:00:00+08:00
 ```
 
-Then create the branch from current `origin/main`:
+Then create the branch from current `origin/main` in that agent's own clone:
 
 ```bash
 git fetch origin

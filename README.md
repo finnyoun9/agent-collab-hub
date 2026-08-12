@@ -23,7 +23,7 @@ Feishu / human request
 GitHub Issue (task + acceptance criteria)
         |
         v
-Router -> one owner -> isolated branch/worktree
+Router -> one owner -> isolated checkout + task branch
         |
         v
 PR + test evidence -> independent review -> integration
@@ -47,6 +47,9 @@ python scripts/collab.py --lang zh route --needs vision,research --prefer vision
 ```
 
 All text files and CLI output use UTF-8 across Windows, macOS, and Linux.
+
+See [coordinator/README.zh-CN.md](coordinator/README.zh-CN.md) for the current
+bench-hosted Feishu coordinator MVP.
 
 To read or update GitHub Issues, provide credentials only through the process
 environment. Never commit them:
@@ -74,7 +77,7 @@ The example configuration models a practical four-agent fleet:
 | Agent | Best use | Main constraint |
 |---|---|---|
 | bench Codex | coordinator, integration, hardware verification | premium capacity |
-| bench WorkBuddy | local coding, repetitive work, quick checks | no image input |
+| bench WorkBuddy | default low-risk implementation, repetitive work, quick checks | no image input; no merge/deploy/hardware authority |
 | Mac Claude client | visual analysis, research, architecture review | may lack local workspace access |
 | Mac Claude VS Code | local coding and review | no image input with current API |
 
@@ -83,6 +86,10 @@ Edit [config/agents.json](config/agents.json) as capabilities change.
 ## Design principles
 
 - One task has one owner and one branch.
+- Low-risk, bounded, testable implementation defaults to `bench-workbuddy`.
+- Each concurrently running local agent uses its own clone. A branch alone does
+  not isolate `HEAD`, the index, or working-tree files in a shared checkout.
+- Runtime services use a dedicated clone that coding agents do not edit.
 - Agents communicate through artifacts, not assumed shared chat memory.
 - A claim is a lease, not permanent ownership.
 - The author does not perform the final review for risky changes.

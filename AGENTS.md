@@ -12,6 +12,17 @@ instructions of the target project.
    expected files, and lease expiry.
 5. Work only on the named branch or worktree. Never commit directly to `main`.
 
+## Local checkout isolation
+
+- Every concurrently running local agent uses its own clone, including agents
+  on the same computer. Never share one checkout between agents.
+- A long-running coordinator or service uses a dedicated runtime clone. Do not
+  edit, switch branches, or commit from that clone.
+- Never delete or recreate `.git` inside an existing checkout, run `git init`
+  there as recovery, or manually write files under `.git/refs`.
+- If Git metadata appears damaged, stop mutating that checkout, preserve it for
+  diagnosis, and create a fresh clone in a new directory.
+
 ## Ownership and conflict rules
 
 - One issue has one active owner.
@@ -20,6 +31,19 @@ instructions of the target project.
 - A stale lease may be reclaimed only after its expiry and a visible
   `RECLAIMED` comment.
 - The coordinator owns final integration and conflict resolution.
+
+## WorkBuddy fast-development authority
+
+- `bench-workbuddy` is the default first-line developer for low-risk, bounded,
+  testable tasks that do not require image input.
+- In its own clone and claimed task branch, it may edit files, run tests and
+  formatters, commit, push, open a pull request, and post `HANDOFF` without
+  waiting for another approval.
+- It must not merge pull requests, commit to `main`, deploy, publish releases,
+  handle secrets, flash hardware, perform destructive device actions, delete or
+  recreate `.git`, manually write Git refs, or expand beyond the claimed scope.
+- Medium/high-risk, cross-module, visual, hardware, credential, deployment, and
+  ambiguous architecture work still requires coordinator routing and independent review.
 
 ## Handoff contract
 
