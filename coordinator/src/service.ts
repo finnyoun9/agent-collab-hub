@@ -1,4 +1,17 @@
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Command, GitHubPort, Language, TaskSummary } from "./types.js";
+
+interface RoutingConfig {
+  routing: { default_worker: string };
+}
+
+const configPath = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../config/agents.json",
+);
+const config = JSON.parse(readFileSync(configPath, "utf8")) as RoutingConfig;
 
 function labels(task: TaskSummary): string {
   return task.labels.length ? task.labels.join(", ") : "-";
@@ -17,7 +30,7 @@ export class CoordinatorService {
           ? [
               "Agent Hub 已连接。",
               "/task <目标> 创建任务",
-              "/quick <目标> 创建并分配给 bench-workbuddy",
+              `/quick <目标> 创建并分配给 ${config.routing.default_worker}`,
               "/queue 查看队列",
               "/status <编号> 查看状态",
               "/assign <编号> <agent-id> 分配任务",
@@ -25,7 +38,7 @@ export class CoordinatorService {
           : [
               "Agent Hub is connected.",
               "/task <goal> create a task",
-              "/quick <goal> create and assign to bench-workbuddy",
+              `/quick <goal> create and assign to ${config.routing.default_worker}`,
               "/queue list the queue",
               "/status <number> show status",
               "/assign <number> <agent-id> assign a task",
@@ -36,11 +49,11 @@ export class CoordinatorService {
       }
       case "quick": {
         const task = await this.github.createTask(command.goal);
-        const assigned = await this.github.assign(task.number, "bench-workbuddy");
+        const assigned = await this.github.assign(task.number, config.routing.default_worker);
         return this.renderTask(
           this.lang === "zh"
-            ? "快速任务已创建并分配给 bench-workbuddy"
-            : "Quick task created and assigned to bench-workbuddy",
+            ? `快速任务已创建并分配给 ${config.routing.default_worker}`
+            : `Quick task created and assigned to ${config.routing.default_worker}`,
           assigned,
         );
       }

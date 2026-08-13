@@ -14,7 +14,7 @@ const github: GitHubPort = {
   createTask: async () => task,
   listQueue: async () => [task],
   getTask: async () => task,
-  assign: async () => ({ ...task, labels: ["state:ready", "agent:bench-workbuddy"] }),
+  assign: async () => ({ ...task, labels: ["state:ready", "agent:bench-opencode"] }),
 };
 
 describe("CoordinatorService", () => {
@@ -30,10 +30,10 @@ describe("CoordinatorService", () => {
     await expect(service.execute({ kind: "queue" })).resolves.toContain("#7");
   });
 
-  it("creates and assigns a quick task to WorkBuddy", async () => {
+  it("creates and assigns a quick task to the configured default worker", async () => {
     const service = new CoordinatorService(github, "zh");
     await expect(service.execute({ kind: "quick", goal: "修正文档链接" })).resolves.toContain(
-      "bench-workbuddy",
+      "bench-opencode",
     );
   });
 });

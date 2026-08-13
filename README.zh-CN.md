@@ -2,82 +2,45 @@
 
 [English](README.md) | 简体中文
 
-一个轻量的跨电脑异构编码 Agent 协作控制层。它用 GitHub Issues 做任务队列，独立分支和 Pull Request 做交付边界，飞书负责通知和人工指令入口。
+这是一个轻量的异构 Agent 协作控制层。Hermes 作为常驻入口和调度器，
+OpenCode、Codex、Pi、WorkBuddy 和 Claude 客户端继续使用各自原生能力。
+Hub 只负责选择主执行 Agent、隔离并发写入，并记录简短结果。
 
-这个仓库不运行或代理模型。Codex、Claude Code、WorkBuddy 和 API Agent 继续使用各自原生客户端；本项目只统一任务路由、领取、交接、证据和审查协议。
-
-## 工作流
+## 推荐架构
 
 ```text
-飞书 / 人工需求
-      |
-      v
-GitHub Issue（任务 + 验收标准）
-      |
-      v
-路由器 -> 单一负责人 -> 独立工作副本 + 任务分支
-      |
-      v
-PR + 测试证据 -> 独立审查 -> 集成
-      |
-      v
-飞书通知 + 长期决策/学习记录
+你 / 飞书
+  -> Hermes（接收、定时、记忆、分派）
+  -> OpenCode（默认本地编码）
+  -> Codex（复杂集成、恢复、高风险任务）
+  -> Pi（extension / RPC 实验）
+  -> WorkBuddy（交互式备用执行者）
+  -> Claude（视觉、架构、长上下文）
 ```
+
+各 Agent 可以使用自己的 subagent，但内部 subagent 不得再次通过 Hub 分派。
+主执行 Agent 负责汇总所有子任务并返回一个最终结果。
 
 ## 快速开始
 
-```bash
+```powershell
 python scripts/collab.py --lang zh agents
 python scripts/collab.py --lang zh route --needs local,code --prefer low-cost
 python scripts/collab.py --lang zh doctor
 ```
 
-也可以设置默认语言：
+Agent 名单和默认路由只在 [config/agents.json](config/agents.json) 中维护。
+新增 Agent 后不需要再修改 Coordinator 源码。
 
-```bash
-export COLLAB_LANG=zh
-```
+## 工作模式
 
-PowerShell：
+- 普通低风险任务使用快速模式：一个主 Agent 直接完成，简短汇报即可。
+- 模糊或跨模块任务可以由第二个 Agent 做快速查漏补缺。
+- 部署、密钥、硬件、破坏性操作和高风险改动使用受控模式，要求独立工作区、适当验证和复核。
+- 顺序执行的 Agent 可以复用干净 checkout；只有并发写入时才创建独立 worktree 或 clone。
 
-```powershell
-$env:COLLAB_LANG = "zh"
-```
+详细 CLI 接入和路由见 [docs/LOCAL-AGENTS.md](docs/LOCAL-AGENTS.md)，协作协议见
+[docs/WORKFLOW.zh-CN.md](docs/WORKFLOW.zh-CN.md)，飞书接入见
+[docs/FEISHU.zh-CN.md](docs/FEISHU.zh-CN.md)。
 
-读写 GitHub Issue 时，凭据只能通过进程环境传入，不能提交到仓库：
-
-```bash
-export GH_TOKEN="..."
-python scripts/collab.py --lang zh status --repo finnyoun9/agent-collab-hub
-```
-
-通过 GitHub 的 `Agent task / Agent 任务` 表单创建任务。协作协议见 [docs/WORKFLOW.zh-CN.md](docs/WORKFLOW.zh-CN.md)，飞书接入见 [docs/FEISHU.zh-CN.md](docs/FEISHU.zh-CN.md)。
-
-## 当前 Agent 分工
-
-| Agent | 最适合 | 主要限制 |
-|---|---|---|
-| bench Codex | 主控、集成、硬件验证 | 高价值额度 |
-| bench WorkBuddy | 默认承接低风险开发、重复工作、快速检查 | 不能识图；不能合并、部署或操作硬件 |
-| Mac Claude client | 视觉分析、调研、架构审查 | 可能不能访问本地工作区 |
-| Mac Claude VS Code | 本地编码和审查 | 当前 API 不能识图 |
-
-能力变化时修改 [config/agents.json](config/agents.json)。
-
-## 核心约定
-
-- 一个任务只有一个负责人和一个分支。
-- 低风险、边界清晰、可测试的实现任务默认交给 `bench-workbuddy`。
-- 同一台电脑上并发运行的每个 Agent 也必须使用独立 clone。只分分支不能隔离共享工作区里的 `HEAD`、暂存区和文件。
-- 常驻服务使用独立运行副本，编码 Agent 不在该目录中开发。
-- Agent 通过可审查产物协作，不假设共享聊天记忆。
-- `CLAIM` 是有期限的 lease，不是永久占有。
-- 高风险改动的作者不能做最终审查。
-- 硬件结论必须带实测证据。
-- 调研只有转化成代码、测试、决策或可复现实验才算完成。
-- 协议关键字保持英文，保证不同语言和模型都能稳定解析。
-- 密钥只放环境变量或 GitHub/飞书 secret store。
-
-所有文本文件和 CLI 输出统一使用 UTF-8，保证 Windows、macOS 和 Linux 上的中英文内容一致。
-
-bench 上的飞书长连接协调器见 [coordinator/README.zh-CN.md](coordinator/README.zh-CN.md)。
+密钥只放环境变量或密钥存储，不写入 Issue、日志或仓库文件。

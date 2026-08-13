@@ -24,7 +24,7 @@ runtime. Each agent only needs GitHub access and this repository's protocol.
 
 ```text
 /task <goal>                 create a triage issue
-/quick <goal>                create and assign a low-risk task to bench-workbuddy
+/quick <goal>                create and assign a low-risk task to bench-opencode
 /queue                       list ready, claimed, and blocked tasks
 /assign <issue> <agent-id>   set owner and capability label
 /handoff <issue>             show the latest handoff
@@ -66,7 +66,7 @@ Automate:
 
 - new task notification;
 - task claimed/blocked/handoff notification;
-- review requested and CI failed notification;
+- optional gap-check request and failed-run notification;
 - stale lease reminder.
 
 Keep human approval for:

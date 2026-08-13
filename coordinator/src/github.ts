@@ -1,14 +1,21 @@
 import { execFile } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import type { GitHubPort, TaskSummary } from "./types.js";
 
 const execFileAsync = promisify(execFile);
-const AGENTS = new Set([
-  "bench-codex",
-  "bench-workbuddy",
-  "mac-claude-client",
-  "mac-claude-vscode",
-]);
+interface AgentConfig {
+  agents: Array<{ id: string }>;
+}
+
+const configPath = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../config/agents.json",
+);
+const agentConfig = JSON.parse(readFileSync(configPath, "utf8")) as AgentConfig;
+const AGENTS = new Set(agentConfig.agents.map((agent) => agent.id));
 
 interface GhIssue {
   number: number;

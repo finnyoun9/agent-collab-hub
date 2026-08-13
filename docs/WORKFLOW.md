@@ -1,142 +1,52 @@
-# Workflow
+# Collaboration workflow
 
 English | [简体中文](WORKFLOW.zh-CN.md)
 
-## Control surfaces
+## Core rules
 
-| Surface | Canonical content |
-|---|---|
-| GitHub Issue | goal, scope, owner, dependencies, acceptance criteria |
-| Branch/worktree | one agent's code changes |
-| Pull request | review discussion and merge gate |
-| Feishu | notification, quick commands, human decisions |
-| Project docs | stable architecture and verified knowledge |
-| Decision log ([DECISIONS.md](../DECISIONS.md)) | settled conclusions, not re-litigated |
+- Hermes is the always-on dispatcher; OpenCode is the default local coding worker.
+- Codex handles complex integration, recovery, hardware, and high-risk work.
+- Pi is for extension, RPC, and context-efficient experiments; WorkBuddy is an
+  interactive fallback.
+- Select one primary worker per task. Its internal subagents must not redispatch
+  through the hub.
+- Agents hand work off through results, Git diffs, commits, or issue comments;
+  they do not assume shared chat memory.
 
-Feishu chat is not canonical project state. Important decisions made there must
-be copied to the issue, PR, or project documentation.
+## Fast mode
 
-## Local workspace isolation
-
-Every concurrently running local agent must use a separate clone, even when the
-agents run on the same computer. Different branches inside one checkout still
-share `HEAD`, the index, and working-tree files, so they are not a concurrency
-boundary.
-
-Use a dedicated third clone for a long-running coordinator or other service:
+Use fast mode for routine low-risk local work:
 
 ```text
-agent-collab-hub-codex/        # Codex development
-agent-collab-hub-workbuddy/    # WorkBuddy development
-agent-collab-hub-coordinator/  # runtime only; agents do not edit here
+task -> primary worker -> change/result -> optional gap check -> done
 ```
 
-Each development clone still uses one task branch per issue. Exchange work only
-through commits, pushes, pull requests, and issue comments. Do not repair a
-damaged checkout in place by deleting `.git`, running `git init`, or manually
-writing Git refs. Preserve it for diagnosis and create a fresh clone instead.
+Fast mode does not require a dedicated clone, PR, lease, full test suite, or
+independent review. The worker reports what changed, any command failure, and
+known gaps.
 
-## Task states
+## Controlled mode
 
-```text
-triage -> ready -> claimed -> in-progress -> review -> verify -> done
-                         \-> blocked -----/
-```
+Use controlled mode for deployment, credentials, hardware flashing,
+destructive actions, high-risk changes, or overlapping concurrent work:
 
-Suggested labels:
+- create a task branch or worktree;
+- state the allowed scope;
+- verify in proportion to risk;
+- use a different agent for review when warranted;
+- retain human approval for merge, release, and destructive operations.
 
-- `state:triage`, `state:ready`, `state:claimed`, `state:review`,
-  `state:verify`, `state:blocked`, `state:done`
-- `agent:bench-codex`, `agent:bench-workbuddy`, `agent:mac-claude-client`,
-  `agent:mac-claude-vscode`
-- `need:vision`, `need:local`, `need:hardware`, `need:research`, `need:review`
-- `risk:low`, `risk:medium`, `risk:high`
+Sequential workers may reuse a clean checkout. Two concurrent writers require
+separate worktrees or clones. The coordinator runtime clone is not a development
+workspace.
 
-## Routing rules
+## Routing
 
-1. Vision input routes to `mac-claude-client` unless local/hardware access is
-   also required. It returns observations as an issue comment or artifact.
-2. Low-risk, bounded, testable local coding defaults to `bench-workbuddy`. In
-   its own clone it may edit, test, commit, push, open a PR, and post `HANDOFF`.
-3. Hardware flashing and measurement route to `bench-codex`.
-4. Architecture and ambiguous research route to `mac-claude-client`; the
-   coordinator converts conclusions into an executable task.
-5. High-risk or cross-module work returns to `bench-codex` for integration.
-6. Review should use a different model/client from the author when possible.
+1. Automation, scheduling, memory, and messaging: `bench-hermes`.
+2. Ordinary local coding: `bench-opencode`.
+3. Complex integration, repeated failure, hardware, or high risk: `bench-codex`.
+4. Custom harness, extension, or RPC work: `bench-pi`.
+5. Vision, architecture, and long-context work: Claude clients.
+6. IDE interaction or OpenCode fallback: `bench-workbuddy`.
 
-WorkBuddy does not merge, commit to `main`, deploy, publish, handle secrets,
-flash hardware, modify devices destructively, rebuild `.git`, write refs
-manually, or expand beyond the claimed scope. Those actions return to the
-coordinator or the human approval boundary.
-
-## Claim
-
-Before editing, post:
-
-```text
-CLAIM
-Agent: mac-claude-vscode
-Target: owner/project
-Branch: agent/mac-claude-vscode/42-short-name
-Files: src/foo.c, tests/test_foo.py
-Lease until: 2026-08-13T20:00:00+08:00
-```
-
-Then create the branch from current `origin/main` in that agent's own clone:
-
-```bash
-git fetch origin
-git switch main
-git pull --ff-only
-git switch -c agent/mac-claude-vscode/42-short-name
-```
-
-## Heartbeat and lease
-
-Long tasks post a short heartbeat before the lease expires:
-
-```text
-HEARTBEAT
-Agent: mac-claude-vscode
-Progress: parser implemented; tests in progress
-Lease until: 2026-08-14T04:00:00+08:00
-```
-
-Do not use minute-by-minute heartbeats. One update at a meaningful checkpoint is
-enough. An expired task can be reassigned by the coordinator after a visible
-`RECLAIMED` comment.
-
-## Handoff
-
-```text
-HANDOFF
-Agent: mac-claude-vscode
-Branch: agent/mac-claude-vscode/42-short-name
-Commit: abc1234
-PR: https://github.com/owner/project/pull/7
-Changed: src/foo.c, tests/test_foo.py
-
-VERIFIED
-- `pytest tests/test_foo.py`: 8 passed
-
-NOT VERIFIED
-- target hardware timing
-
-NEXT
-- bench-codex: run the hardware acceptance test and record evidence
-```
-
-## Learning tasks
-
-Learning work uses the same delivery discipline. A task such as “learn DMA” is
-too vague; route it as:
-
-```text
-Goal: explain and implement UART RX circular DMA on the current board.
-Artifact: minimal firmware + wiring note + captured UART evidence.
-Acceptance: no byte loss in a reproducible burst test.
-Reflection: record one wrong assumption and how the evidence corrected it.
-```
-
-The output must be reusable: code, test, experiment log, diagram, or decision
-record. A chat summary alone is not complete.
+`config/agents.json` is the single source of truth for agent IDs and routing.
