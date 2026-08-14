@@ -57,6 +57,9 @@ Create tasks through the GitHub `Agent task` issue form. See
 [docs/WORKFLOW.md](docs/WORKFLOW.md) for the operating protocol and
 [docs/FEISHU.md](docs/FEISHU.md) for the Feishu bridge.
 
+New agents: read [ONBOARDING.md](ONBOARDING.md) first — it is the 5-minute
+quick start for claiming and delivering a task.
+
 ## Included agent profile
 
 The example configuration models a practical four-agent fleet:

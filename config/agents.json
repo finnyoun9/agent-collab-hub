@@ -35,6 +35,33 @@
       "cost": "low",
       "availability": "interactive",
       "notes": "Local implementation with the current DeepSeek API; no image input."
+    },
+    {
+      "id": "mac-claude-pro",
+      "display_name": "Mac Claude Pro (multi-session)",
+      "role": "specialist",
+      "capabilities": ["vision", "research", "architecture", "review", "interview-prep", "learning-notes"],
+      "cost": "pro-subscription",
+      "availability": "interactive",
+      "notes": "Claude Pro account with multiple parallel sessions. Best for interview-prep extraction, concept learning notes, and independent review."
+    },
+    {
+      "id": "bench-hermes",
+      "display_name": "Bench Hermes",
+      "role": "worker",
+      "capabilities": ["code", "local", "hardware", "research", "low-cost"],
+      "cost": "low",
+      "availability": "interactive",
+      "notes": "General-purpose worker on the bench. Has hardware access (Bluepill/robot wired to bench). Documentation, knowledge-base, and hardware verification."
+    },
+    {
+      "id": "bench-opencode",
+      "display_name": "Bench OpenCode",
+      "role": "worker",
+      "capabilities": ["code", "local", "research", "review", "low-cost"],
+      "cost": "low",
+      "availability": "interactive",
+      "notes": "Second local worker for mechanical batch work: build warnings, CI fixes, and test supplementation."
     }
   ],
   "routing": {
