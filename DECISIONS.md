@@ -17,8 +17,23 @@ this file in the same commit as the change that follows from the decision.
   and auditable.
 - **Impact**: every task, claim, handoff, and decision must land in GitHub.
 
-## D-002 | YYYY-MM-DD | Title
+## D-002 | 2026-08-13 | English and Chinese are first-class interfaces
 
-- **Decision**: …
-- **Reason**: …
-- **Impact**: …
+- **Decision**: user-facing documentation, task forms, CLI output, and Feishu
+  notifications support English and Simplified Chinese. Machine-readable
+  protocol keywords such as `CLAIM`, `HANDOFF`, and `VERIFIED` remain English.
+- **Reason**: humans work mainly in Chinese while heterogeneous agents and
+  automation need one stable, language-neutral parsing contract.
+- **Impact**: new user-facing features must update both languages; duplicated
+  translations link back to one canonical state or protocol definition.
+
+## D-003 | 2026-08-13 | Hermes dispatches; review is risk-based
+
+- **Decision**: Hermes is the always-on dispatcher, OpenCode is the default
+  local coding worker, Codex owns complex integration and recovery, and Pi is
+  experimental. Routine work uses fast mode; controlled workflow and
+  independent review are reserved for high-risk work.
+- **Reason**: the goal is throughput and complementary agent behavior, not a
+  mandatory enterprise review pipeline for every small task.
+- **Impact**: agent IDs come from `config/agents.json`; internal subagents stay
+  under their primary worker and do not recursively dispatch through the hub.

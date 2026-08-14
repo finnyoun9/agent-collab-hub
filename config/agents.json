@@ -1,13 +1,48 @@
 {
   "agents": [
     {
+      "id": "bench-hermes",
+      "display_name": "Bench Hermes",
+      "runtime": "hermes",
+      "role": "orchestrator",
+      "capabilities": ["automation", "local", "memory", "messaging", "scheduling", "routing"],
+      "cost": "low",
+      "availability": "always-on",
+      "notes": "Always-on front door for intake, scheduling, durable memory, and dispatch. Delegates code changes to a worker.",
+      "notes_zh": "常驻入口，负责任务接收、定时、长期记忆和分派；代码修改交给执行 Agent。"
+    },
+    {
+      "id": "bench-opencode",
+      "display_name": "Bench OpenCode",
+      "runtime": "opencode",
+      "role": "worker",
+      "capabilities": ["code", "local", "lsp", "research", "review", "fast-edit", "low-cost"],
+      "cost": "low",
+      "availability": "cli",
+      "notes": "Default local coding worker for fast implementation and project-aware edits. May use its own subagents.",
+      "notes_zh": "默认本地编码执行者，适合快速实现和项目内修改，可自行使用内部 subagent。"
+    },
+    {
       "id": "bench-codex",
       "display_name": "Bench Codex",
+      "runtime": "codex",
       "role": "coordinator",
-      "capabilities": ["code", "local", "vision", "research", "review", "hardware", "integration"],
+      "capabilities": ["code", "local", "vision", "research", "review", "hardware", "integration", "recovery"],
       "cost": "premium",
       "availability": "interactive",
-      "notes": "Owns routing, integration, risky review, and hardware evidence."
+      "notes": "Owns complex integration, recovery, risky review, and hardware evidence.",
+      "notes_zh": "负责复杂集成、故障恢复、高风险复核和硬件证据。"
+    },
+    {
+      "id": "bench-pi",
+      "display_name": "Bench Pi",
+      "runtime": "pi",
+      "role": "experimental-worker",
+      "capabilities": ["code", "local", "rpc", "extensions", "low-context"],
+      "cost": "low",
+      "availability": "cli",
+      "notes": "Experimental worker for custom extensions, RPC integrations, and context-efficient workflows.",
+      "notes_zh": "实验型执行者，适合自定义 extension、RPC 集成和低上下文工作流。"
     },
     {
       "id": "bench-workbuddy",
@@ -16,7 +51,8 @@
       "capabilities": ["code", "local", "research", "review", "low-cost"],
       "cost": "low",
       "availability": "interactive",
-      "notes": "Good for bounded implementation and repetitive analysis; no image input."
+      "notes": "Interactive fallback worker for bounded local coding tasks; no image input.",
+      "notes_zh": "交互式备用执行者，适合边界清晰的本地编码任务，不支持图片输入。"
     },
     {
       "id": "mac-claude-client",
@@ -25,7 +61,8 @@
       "capabilities": ["vision", "research", "architecture", "review", "long-context"],
       "cost": "included-quota",
       "availability": "interactive",
-      "notes": "Use for screenshots, datasheets, architecture, and independent review; do not assume local file access."
+      "notes": "Use for screenshots, datasheets, architecture, and long-context work; do not assume local file access.",
+      "notes_zh": "适合截图、数据手册、架构和长上下文任务；不要默认具备本地文件访问能力。"
     },
     {
       "id": "mac-claude-vscode",
@@ -34,7 +71,8 @@
       "capabilities": ["code", "local", "research", "review", "low-cost"],
       "cost": "low",
       "availability": "interactive",
-      "notes": "Local implementation with the current DeepSeek API; no image input."
+      "notes": "Local implementation through the configured DeepSeek API; no image input.",
+      "notes_zh": "通过已配置的 DeepSeek API 做本地实现，不支持图片输入。"
     },
     {
       "id": "mac-claude-pro",
@@ -43,31 +81,20 @@
       "capabilities": ["vision", "research", "architecture", "review", "interview-prep", "learning-notes"],
       "cost": "pro-subscription",
       "availability": "interactive",
-      "notes": "Claude Pro account with multiple parallel sessions. Best for interview-prep extraction, concept learning notes, and independent review."
-    },
-    {
-      "id": "bench-hermes",
-      "display_name": "Bench Hermes",
-      "role": "worker",
-      "capabilities": ["code", "local", "hardware", "research", "low-cost"],
-      "cost": "low",
-      "availability": "interactive",
-      "notes": "General-purpose worker on the bench. Has hardware access (Bluepill/robot wired to bench). Documentation, knowledge-base, and hardware verification."
-    },
-    {
-      "id": "bench-opencode",
-      "display_name": "Bench OpenCode",
-      "role": "worker",
-      "capabilities": ["code", "local", "research", "review", "low-cost"],
-      "cost": "low",
-      "availability": "interactive",
-      "notes": "Second local worker for mechanical batch work: build warnings, CI fixes, and test supplementation."
+      "notes": "Claude Pro account with parallel sessions. Best for interview-prep extraction, concept learning notes, and independent review.",
+      "notes_zh": "Claude Pro 账号，可多会话并行。适合面试弹药提炼、概念学习笔记和独立复核。"
     }
   ],
   "routing": {
+    "orchestrator": "bench-hermes",
     "coordinator": "bench-codex",
     "final_integrator": "bench-codex",
-    "prefer_independent_reviewer": true,
+    "default_worker": "bench-opencode",
+    "fallback_worker": "bench-workbuddy",
+    "experimental_worker": "bench-pi",
+    "review_mode": "risk-based",
+    "prefer_independent_reviewer": false,
+    "subagent_max_depth": 1,
     "lease_hours": 8
   }
 }

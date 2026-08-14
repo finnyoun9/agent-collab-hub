@@ -1,26 +1,26 @@
-## Task
+## Task / 任务
 
 Closes #
 
-## Changed
+## Changed / 改动
 
 -
 
-## Verified
+## Verified / 已验证
 
 - Command / measurement:
 - Result:
 
-## Not verified
+## Not verified / 未验证
 
 -
 
-## Risk and rollback
+## Risk and rollback / 风险与回滚
 
 - Risk:
 - Rollback:
 
-## Learning evidence
+## Learning evidence / 学习证据
 
 - New technique:
 - Reproducible artifact:
