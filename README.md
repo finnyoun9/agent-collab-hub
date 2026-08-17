@@ -73,6 +73,13 @@ Create tasks through the GitHub `Agent task` issue form. See
 New agents: read [ONBOARDING.md](ONBOARDING.md) first — it is the 5-minute
 quick start for claiming and delivering a task.
 
+## macOS workflow
+
+For a practical Mac workflow using Codex Chat, a VS Code agent, and GitHub as
+durable handoff storage, see [docs/macos-agent-workflow.md](docs/macos-agent-workflow.md).
+It defines one task owner, isolated worktrees for concurrent writers, and a
+small evidence-based handoff format.
+
 ## Included agent profile
 
 The configuration models a mixed local and remote fleet. The core local roles are:

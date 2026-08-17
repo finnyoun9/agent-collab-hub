@@ -44,3 +44,8 @@ Agent 名单和默认路由只在 [config/agents.json](config/agents.json) 中�
 [docs/FEISHU.zh-CN.md](docs/FEISHU.zh-CN.md)。
 
 密钥只放环境变量或密钥存储，不写入 Issue、日志或仓库文件。
+
+## macOS 实操流程
+
+如果你在 Mac 上在 Codex Chat、VS Code 中的 Agent 与 GitHub 之间切换，见
+[docs/macos-agent-workflow.zh-CN.md](docs/macos-agent-workflow.zh-CN.md)。该流程规定单一任务负责人、并发写入使用独立 worktree，以及基于证据的简短交接格式。
